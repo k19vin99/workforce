@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<header class="p-3 mb-3 border-bottom" style:"background: #FFD700">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
+          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"/></svg>
+        </a>
+        <h1 class="logo">WorkForce</h1>
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+        {% if is_supervisor %}
+        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search" method="get" action="{% url 'buscar' %}">
+            <input type="search" class="form-control" placeholder="Buscar" aria-label="Search" name="q">
+        </form>
+        {% endif %}
+
+        <div class="dropdown text-end">
+          <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if user.colaborador.foto_perfil %}
+                <img src="{{ user.colaborador.foto_perfil.url }}" alt="mdo" width="32" height="32" class="rounded-circle">
+            {% else %}
+                <img src="{% static 'img/default_profile.png' %}" alt="mdo" width="32" height="32" class="rounded-circle">
+            {% endif %}
+          </a>
+          <ul class="dropdown-menu text-small">
+            <li><a class="dropdown-item">{{user.username}}</a></li>
+            <li><a class="dropdown-item" href="{% url 'profile' %}">Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'logout' %}">Salir</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+<div class="container mt-5">
+    <h1>Resultados de la búsqueda para "{{ request.GET.q }}"</h1>
+    
+    <h2>Solicitudes</h2>
+    <ul>
+        {% for solicitud in resultados_solicitudes %}
+        <li><a href="{% url 'gestionar_solicitud' solicitud.id %}">{{ solicitud.tipo }} - {{ solicitud.estado }}</a></li>
+        {% empty %}
+        <li>No se encontraron solicitudes.</li>
+        {% endfor %}
+    </ul>
+    
+    <h2>Cursos</h2>
+    <ul>
+        {% for curso in resultados_cursos %}
+        <li><a href="{% url 'detalle_curso' curso.id %}">{{ curso.nombre }}</a></li>
+        {% empty %}
+        <li>No se encontraron cursos.</li>
+        {% endfor %}
+    </ul>
+    
+    <h2>Liquidaciones</h2>
+    <ul>
+        {% if resultados_liquidaciones %}
+            {% for liquidacion in resultados_liquidaciones %}
+            <li><a href="{% url 'descargar_liquidacion_pdf' liquidacion.id %}" target="_blank">
+                Liquidación de {{ liquidacion.empleado.username }} - {{ liquidacion.fecha|date:"j \d\e F \d\e Y" }}
+            </a></li>
+            {% endfor %}
+        {% else %}
+            <li>No se encontraron liquidaciones.</li>
+        {% endif %}
+    </ul>
+    <a href="{% url 'home' %}" class="btn btn-secondary mt-3">Home</a>
+</div>
+{% endblock %}

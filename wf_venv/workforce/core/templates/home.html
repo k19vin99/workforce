@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+
+{% load custom_tags %}
+{% load static %}
+{% block content %}
+<header class="header">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
+          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"/></svg>
+        </a>
+
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+            <img src="{% static 'img/banner.png' %}" style="width: 150px; height: 40px">
+          <li><a href="{% url 'home' %}" class="btn btn-outline-secondary btn-hover" style="border-color: #2eeff5; color: black; margin-left: 30px;">Home</a></li>
+        </ul>
+
+        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search" action="{% url 'buscar' %}">
+            <input type="search" class="form-control" placeholder="Buscar" aria-label="Search" name="q">
+        </form>
+
+        <div class="dropdown text-end">
+          <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if user.foto_perfil %}
+                <img src="{{ user.foto_perfil.url }}" alt="mdo" width="42" height="42" class="rounded-circle">
+            {% else %}
+                <img src="{% static 'img/default_profile.png' %}" alt="mdo" width="42" height="42" class="rounded-circle">
+            {% endif %}
+          </a>
+          <ul class="dropdown-menu text-small">
+            <li><a class="dropdown-item">{{user.username}}</a></li>
+            <li><a class="dropdown-item" href="{% url 'profile' %}">Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <form id="logout-form" method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item">Salir</button>
+                </form>
+              </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+</header>
+<div class="container-fluid">
+    <div class="row">
+        <style>
+            .header {
+                background-color: #6c807b; /* Reemplaza este valor con el color exacto del header */
+            }
+            .sidebar {
+                background-color: #4a4e55; /* Aplica el mismo color al sidebar */
+            }
+            body {
+                background-image: url("{% static 'img/fondo.jpg' %}");
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+            }
+        </style>
+        <div class="col-md-2 sidebar text-white" style="min-height: 100vh;">
+            <div class="flex-shrink-0 p-3">
+                <br>
+                <a class="d-flex align-items-center mb-3 link-light text-decoration-none">
+                    <i class="fas fa-home fa-lg me-2" style="color: #2eeff5;"></i>
+                    <span class="fs-5 fw-semibold">Mis Accesos</span>
+                </a>
+                
+                {% if user|is_supervisor %}
+                
+                <ul class="list-unstyled ps-0">
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#users-collapse" aria-expanded="false">
+                            <i class="fas fa-users me-2" style="color: #2eeff5;"></i> Usuarios
+                        </button>
+                        <div class="collapse" id="users-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'registrar_usuario' %}" class="link-light d-inline-flex text-decoration-none rounded">Registrar Usuario</a></li>
+                                <li><a href="{% url 'lista_colaboradores' %}" class="link-light d-inline-flex text-decoration-none rounded">Listado de Usuarios</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#liquidaciones-collapse" aria-expanded="false">
+                            <i class="fas fa-file-invoice-dollar me-2" style="color: #2eeff5;"></i> Liquidaciones
+                        </button>
+                        <div class="collapse" id="liquidaciones-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'crear_liquidacion' %}" class="link-light d-inline-flex text-decoration-none rounded">Crear Liquidación</a></li>
+                                <li><a href="{% url 'visualizacion_liquidaciones' %}" class="link-light d-inline-flex text-decoration-none rounded">Ver Liquidaciones</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#cargas-collapse" aria-expanded="false">
+                            <i class="fas fa-users-cog me-2" style="color: #2eeff5;"></i> Cargas Familiares
+                        </button>
+                        <div class="collapse" id="cargas-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'registrar_carga' %}" class="link-light d-inline-flex text-decoration-none rounded">Registrar Carga</a></li>
+                                <li><a href="{% url 'listar_cargas' %}" class="link-light d-inline-flex text-decoration-none rounded">Ver Cargas</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#asistencia-collapse" aria-expanded="false">
+                            <i class="fas fa-user-check me-2" style="color: #2eeff5;"></i> Asistencia
+                        </button>
+                        <div class="collapse" id="asistencia-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'registro_asistencia' %}" class="link-light d-inline-flex text-decoration-none rounded">Registrar Asistencia</a></li>
+                                <li><a href="{% url 'visualizacion_asistencia' %}" class="link-light d-inline-flex text-decoration-none rounded">Ver Asistencia</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#solicitudes-collapse" aria-expanded="false">
+                            <i class="fas fa-clipboard-list me-2" style="color: #2eeff5;"></i> Solicitudes
+                        </button>
+                        <div class="collapse" id="solicitudes-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'crear_solicitud' %}" class="link-light d-inline-flex text-decoration-none rounded">Crear Solicitud</a></li>
+                                <li><a href="{% url 'lista_solicitudes' %}" class="link-light d-inline-flex text-decoration-none rounded">Ver Solicitudes</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#cursos-collapse" aria-expanded="false">
+                            <i class="fas fa-book-open me-2" style="color: #2eeff5;"></i> Cursos
+                        </button>
+                        <div class="collapse" id="cursos-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'crear_curso' %}" class="link-light d-inline-flex text-decoration-none rounded">Crear Curso</a></li>
+                                <li><a href="{% url 'lista_cursos' %}" class="link-light d-inline-flex text-decoration-none rounded">Ver Cursos</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#beneficios-collapse" aria-expanded="false">
+                            <i class="fas fa-book-open me-2" style="color: #2eeff5;"></i> Beneficios
+                        </button>
+                        <div class="collapse" id="beneficios-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'crear_beneficio' %}" class="link-light d-inline-flex text-decoration-none rounded">Crear Beneficio</a></li>
+                                <li><a href="{% url 'lista_beneficios' %}" class="link-light d-inline-flex text-decoration-none rounded">Ver Beneficios</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                
+                    </ul>
+                {% else %}
+                <ul class="list-unstyled ps-0">
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#liquidaciones-collapse" aria-expanded="false">
+                            <i class="fas fa-file-invoice-dollar me-2" style="color: #2eeff5;"></i> Liquidaciones
+                        </button>
+                        <div class="collapse" id="liquidaciones-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'visualizacion_liquidaciones' %}" class="link-light d-inline-flex text-decoration-none rounded">Ver Liquidaciones</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#cargas-collapse" aria-expanded="false">
+                            <i class="fas fa-users-cog me-2" style="color: #2eeff5;"></i> Cargas Familiares
+                        </button>
+                        <div class="collapse" id="cargas-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'listar_cargas' %}" class="link-light d-inline-flex text-decoration-none rounded">Ver Cargas</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#asistencia-collapse" aria-expanded="false">
+                            <i class="fas fa-user-check me-2" style="color: #2eeff5;"></i> Asistencia
+                        </button>
+                        <div class="collapse" id="asistencia-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'registro_asistencia' %}" class="link-light d-inline-flex text-decoration-none rounded">Registrar Asistencia</a></li>
+                                <li><a href="{% url 'visualizacion_asistencia' %}" class="link-light d-inline-flex text-decoration-none rounded">Ver Asistencia</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#solicitudes-collapse" aria-expanded="false">
+                            <i class="fas fa-clipboard-list me-2" style="color: #2eeff5;"></i> Solicitudes
+                        </button>
+                        <div class="collapse" id="solicitudes-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'crear_solicitud' %}" class="link-light d-inline-flex text-decoration-none rounded">Crear Solicitud</a></li>
+                                <li><a href="{% url 'lista_solicitudes' %}" class="link-light d-inline-flex text-decoration-none rounded">Ver Solicitudes</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#cursos-collapse" aria-expanded="false">
+                            <i class="fas fa-book-open me-2" style="color: #2eeff5;"></i> Cursos
+                        </button>
+                        <div class="collapse" id="cursos-collapse">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li><a href="{% url 'lista_cursos' %}" class="link-light d-inline-flex text-decoration-none rounded">Ver Cursos</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-10">
+            <br>
+            <h1 style="text-align: center">Estadisticas</h1>
+            <!-- Aquí es donde se agregarán las tarjetas -->
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Usuarios Registrados</h6>
+                                <p class="card-text h3">{{ cantidad_usuarios }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Liquidaciones</h6>
+                                <p class="card-text h3">{{ cantidad_liquidaciones }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Cargas Familiares</h6>
+                                <p class="card-text h3">{{ cantidad_cargas_familiares }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Solicitudes Creadas</h6>
+                                <p class="card-text h3">{{ cantidad_solicitudes }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Solicitudes Pendientes</h6>
+                                <p class="card-text h3">{{ solicitudes_pendientes }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Solicitudes Aprobadas</h6>
+                                <p class="card-text h3">{{ solicitudes_aprobadas }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Solicitudes Rechazadas</h6>
+                                <p class="card-text h3">{{ solicitudes_rechazadas }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container mt-4">
+                <h4 class="text-center">Beneficios</h4>
+                <br>
+                <div id="beneficiosCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for beneficio in beneficios %}
+                        {% if forloop.counter0|divisibleby:3 %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <div class="row">
+                        {% endif %}
+                                <div class="col-md-4">
+                                    <div class="card shadow-sm mb-4 beneficio-card">
+                                        <img src="{{ beneficio.imagen.url }}" class="card-img-top" alt="Imagen del beneficio">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">{{ beneficio.titulo }}</h5>
+                                            <p class="card-text">{{ beneficio.descripcion }}</p>
+                                            <p class="card-text"><small class="text-muted">{{ beneficio.detalle }}</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                        {% if forloop.counter|divisibleby:3 or forloop.last %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#beneficiosCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true" style="background-color: black;"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#beneficiosCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true" style="background-color: black;"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+            <br>
+            
+            <!-- Añade este bloque de estilos directamente en tu plantilla HTML -->
+            <style>
+                .beneficio-card {
+                    height: 320px; /* Altura fija para todas las tarjetas */
+                    display: flex;
+                    flex-direction: column;
+                }
+            
+                .beneficio-card img {
+                    width: 100%;
+                    height: 200px; /* Altura fija para la imagen */
+                    object-fit: cover; /* Asegura que la imagen se ajuste al tamaño del contenedor */
+                }
+            
+                .beneficio-card .card-body {
+                    flex-grow: 1;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                }
+            
+                .carousel-control-prev,.carousel-control-next {
+                    width: 3%; /* Reduce el ancho del área de control */
+                }
+                .carousel-control-prev {
+                    left: -4%; /* Mueve la flecha hacia la izquierda, fuera del contenedor */
+                }
+
+                .carousel-control-next {
+                    right: -4%; /* Mueve la flecha hacia la derecha, fuera del contenedor */
+                }
+
+                .carousel-control-prev-icon,
+                .carousel-control-next-icon {
+                    background-color: black; /* Color de fondo para las flechas de navegación */
+                    width: 40px; /* Tamaño de la flecha */
+                    height: 40px;
+                }
+            </style>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+<footer>
+    <div class="container">
+        <p>&copy; 2024 WorkForce. Todos los derechos reservados.</p>
+    </div>
+</footer>
+{% endblock %}
